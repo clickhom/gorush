@@ -113,6 +113,12 @@ type PushNotification struct {
 	SoundName   string   `json:"name,omitempty"`
 	SoundVolume float32  `json:"volume,omitempty"`
 
+	// SMS
+	PhoneNumbers []string `json:"phoneNumbers" binding:"required"`
+	SMSRequired  bool     `json:"SMSRequired" binding:"required"`
+	SMSMessage   string   `json:"SMSMessage,omitempty"`
+	TemplateID   string   `json:"template_id,omitempty"`
+
 	// ref: https://github.com/sideshow/apns2/blob/54928d6193dfe300b6b88dad72b7e2ae138d4f0a/payload/builder.go#L7-L24
 	InterruptionLevel string `json:"interruption_level,omitempty"`
 
@@ -199,8 +205,8 @@ func SetProxy(proxy string) error {
 
 // CheckPushConf provide check your yml config.
 func CheckPushConf(cfg *config.ConfYaml) error {
-	if !cfg.Ios.Enabled && !cfg.Android.Enabled && !cfg.Huawei.Enabled {
-		return errors.New("please enable iOS, Android or Huawei config in yml config")
+	if !cfg.Ios.Enabled && !cfg.Android.Enabled && !cfg.Huawei.Enabled && !cfg.SMS.Enabled {
+		return errors.New("please enable iOS, Android, Huawei or SMS config in yml config")
 	}
 
 	if cfg.Ios.Enabled {
@@ -258,6 +264,8 @@ func SendNotification(
 		resp, err = PushToAndroid(ctx, v, cfg)
 	case core.PlatFormHuawei:
 		resp, err = PushToHuawei(ctx, v, cfg)
+	case core.PlatformSMS:
+		SendRUSMS(v, cfg)
 	}
 
 	if cfg.Core.FeedbackURL != "" {
