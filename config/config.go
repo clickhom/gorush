@@ -126,6 +126,11 @@ stat:
     path: "badger.db"
 `)
 
+const (
+	SMSProviderMTS    = "MTS"
+	SMSProviderDevino = "Devino"
+)
+
 // ConfYaml is config structure.
 type ConfYaml struct {
 	Core    SectionCore    `yaml:"core"`
@@ -137,6 +142,7 @@ type ConfYaml struct {
 	Log     SectionLog     `yaml:"log"`
 	Stat    SectionStat    `yaml:"stat"`
 	GRPC    SectionGRPC    `yaml:"grpc"`
+	SMS     SectionSMS     `yaml:"sms"`
 }
 
 // SectionCore is sub section of config.
@@ -309,6 +315,20 @@ type SectionGRPC struct {
 	Port    string `yaml:"port"`
 }
 
+// SectionSMS is sub section of config.
+type SectionSMS struct {
+	Enabled  bool   `yaml:"enabled"`
+	Provider string `yaml:"provider"`
+
+	MTSApiUrl       string `yaml:"mts_api_url"`
+	MTSApiKey       string `yaml:"mts_api_key"`
+	MTSSenderNumber string `yaml:"mts_sender_number"`
+
+	DevinoApiUrl       string `yaml:"devino_api_url"`
+	DevinoApiKey       string `yaml:"devino_api_key"`
+	DevinoSenderNumber string `yaml:"devino_sender_number"`
+}
+
 func setDefault() {
 	viper.SetDefault("ios.max_concurrent_pushes", uint(100))
 }
@@ -450,6 +470,20 @@ func LoadConf(confPath ...string) (*ConfYaml, error) {
 	// gRPC Server
 	conf.GRPC.Enabled = viper.GetBool("grpc.enabled")
 	conf.GRPC.Port = viper.GetString("grpc.port")
+
+	// SMS
+	conf.SMS.Enabled = viper.GetBool("sms.enabled")
+	conf.SMS.Provider = viper.GetString("sms.provider")
+	conf.SMS.MTSApiUrl = viper.GetString("sms.mts_api_url")
+	conf.SMS.MTSApiKey = viper.GetString("sms.mts_api_key")
+	conf.SMS.MTSSenderNumber = viper.GetString("sms.mts_sender_number")
+	conf.SMS.DevinoApiUrl = viper.GetString("sms.devino_api_url")
+	conf.SMS.DevinoApiKey = viper.GetString("sms.devino_api_key")
+	conf.SMS.DevinoSenderNumber = viper.GetString("sms.devino_sender_number")
+
+	if conf.SMS.Provider == "" {
+		conf.SMS.Provider = SMSProviderDevino
+	}
 
 	if conf.Core.WorkerNum == int64(0) {
 		conf.Core.WorkerNum = int64(runtime.NumCPU())

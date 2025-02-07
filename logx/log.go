@@ -33,7 +33,7 @@ type LogPushEntry struct {
 
 var isTerm bool
 
-//nolint
+// nolint
 func init() {
 	isTerm = isatty.IsTerminal(os.Stdout.Fd())
 }
@@ -123,6 +123,8 @@ func colorForPlatForm(platform int) string {
 	case core.PlatFormAndroid:
 		return yellow
 	case core.PlatFormHuawei:
+		return green
+	case core.PlatformSMS:
 		return green
 	default:
 		return reset
