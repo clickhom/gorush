@@ -31,4 +31,4 @@ jobs:
             docker login --username oauth --password ${{ secrets.REGISTRY_TOKEN }} cr.yandex
             docker pull ${{ inputs.tag_commit }}
             docker container rm -f prod-gorush
-            docker run -d --restart unless-stopped --network="host" --env-file=/etc/clickhom.ru/gorush/.env  -p 8088:8088 --name dev-gorush ${{inputs.tag_commit}}
+            docker run -d --restart unless-stopped --network="host" --env-file=/etc/clickhom.ru/gorush/.env -v /etc/clickhom.ru/gorush/clickhom-aecd2-firebase-adminsdk-fbsvc-b375ac3b60.json:/mnt/clickhom-aecd2-firebase-adminsdk-fbsvc-b375ac3b60.json -p 8088:8088 --name dev-gorush ${{inputs.tag_commit}}
