@@ -1,3 +1,14 @@
+FROM golang:1.21rc2-alpine as builder
+
+RUN apk --no-cache add make git gcc libtool musl-dev ca-certificates libgcc openssl ncurses-libs libstdc++ libc6-compat
+
+WORKDIR /go/src/app
+COPY . .
+
+RUN go get -d -v ./...
+
+RUN go build -ldflags="-w -s" -o /go/bin/result
+
 FROM alpine:3.21
 
 ARG TARGETOS
@@ -15,7 +26,7 @@ RUN adduser -D $USER
 RUN apk add --no-cache ca-certificates mailcap && \
   rm -rf /var/cache/apk/*
 
-COPY release/${TARGETOS}/${TARGETARCH}/gorush /bin/
+COPY /go/bin/result /bin/gorush
 
 USER $USER
 WORKDIR $HOME
