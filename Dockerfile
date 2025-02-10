@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine
+FROM golang:1.23.6-alpine
 RUN apk --no-cache add make git gcc libtool musl-dev ca-certificates dumb-init 
 
 WORKDIR /go/src
