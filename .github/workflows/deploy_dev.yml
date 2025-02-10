@@ -1,0 +1,34 @@
+name: Deploy to dev
+
+on:
+  workflow_call:
+      inputs:
+        tag_commit: 
+            required: true
+            type: string
+        tag_latest:
+            required: true
+            type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Print envs
+      run: |
+          echo ${{inputs.tag_commit}}
+          echo ${{inputs.tag_latest}}
+
+    - name: SSH and deploy to services
+      uses: appleboy/ssh-action@master
+      with:
+          host: ${{ secrets.DEV_HOST_IP }}
+          username: ${{ secrets.DEV_SSH_USER }}
+          key: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            docker login --username oauth --password ${{ secrets.REGISTRY_TOKEN }} cr.yandex
+            docker pull ${{ inputs.tag_commit }}
+            docker container rm -f dev-gorush || true
+            docker run -d --restart unless-stopped --network="host" --env-file=/etc/dev.clickhom.ru/gorush/.env -v /etc/dev.clickhom.ru/gorush/clickhom-aecd2-firebase-adminsdk-fbsvc-b375ac3b60.json:/mnt/clickhom-aecd2-firebase-adminsdk-fbsvc-b375ac3b60.json -p 127.0.0.1:8088:8088 --name dev-gorush ${{inputs.tag_commit}}

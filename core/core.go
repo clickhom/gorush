@@ -7,6 +7,8 @@ const (
 	PlatFormAndroid
 	// PlatFormHuawei constant is 3 for Huawei
 	PlatFormHuawei
+	// PlatformSMS constant is 4 for SMS
+	PlatformSMS
 )
 
 const (
