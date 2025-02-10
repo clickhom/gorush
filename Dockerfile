@@ -1,4 +1,4 @@
-FROM golang:1.21rc2-alpine as builder
+FROM golang:1.23-alpine as builder
 
 RUN apk --no-cache add make git gcc libtool musl-dev ca-certificates libgcc openssl ncurses-libs libstdc++ libc6-compat
 
