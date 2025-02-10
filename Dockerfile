@@ -26,7 +26,7 @@ RUN adduser -D $USER
 RUN apk add --no-cache ca-certificates mailcap && \
   rm -rf /var/cache/apk/*
 
-COPY /go/bin/result /bin/gorush
+COPY --from=builder /go/bin/result /bin/gorush
 
 USER $USER
 WORKDIR $HOME
