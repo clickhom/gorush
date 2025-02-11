@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -51,8 +52,10 @@ func SendRUSMS(req *PushNotification, cfg *config.ConfYaml) {
 
 	if cfg.SMS.Provider == config.SMSProviderMTS {
 		sendSMS = sendViaMTS
-	} else if cfg.SMS.Provider == config.SMSProviderDevino {
-		sendSMS = sendViaDevino
+	} else if cfg.SMS.Provider == config.SMSProviderDevinoV1 {
+		sendSMS = sendViaDevinoV1
+	} else if cfg.SMS.Provider == config.SMSProviderDevinoV2 {
+		sendSMS = sendViaDevinoV2
 	} else {
 		logx.LogError.Errorf("Unsupported SMS provider: %s", cfg.SMS.Provider)
 		return
@@ -98,7 +101,7 @@ func sendViaMTS(phoneNumber string, req *PushNotification, cfg config.SectionSMS
 	return sendSMS(cfg.MTSApiUrl, authKey, phoneNumber, payload)
 }
 
-func sendViaDevino(phoneNumber string, req *PushNotification, cfg config.SectionSMS) bool {
+func sendViaDevinoV2(phoneNumber string, req *PushNotification, cfg config.SectionSMS) bool {
 	payload := PayloadDevino{
 		Messages: []SMSBodyDevino{
 			{
@@ -111,7 +114,7 @@ func sendViaDevino(phoneNumber string, req *PushNotification, cfg config.Section
 	}
 
 	authKey := fmt.Sprintf("Key %s", cfg.DevinoApiKey)
-	return sendSMS(cfg.DevinoApiUrl, authKey, phoneNumber, payload)
+	return sendSMS(cfg.DevinoApiUrlV2, authKey, phoneNumber, payload)
 }
 
 func sendSMS(url, authKey, phoneNumber string, payload any) bool {
@@ -150,4 +153,68 @@ func sendSMS(url, authKey, phoneNumber string, payload any) bool {
 		return false
 	}
 	return true
+}
+
+func sendViaDevinoV1(phoneNumber string, req *PushNotification, cfg config.SectionSMS) bool {
+	sessionID := getDevinoSessionID(cfg)
+	url := fmt.Sprintf(
+		"%s/Sms/Send?SessionId=%s&DestinationAddress=%s&SourceAddress=%s&Data=%s&Validity=0",
+		cfg.DevinoApiUrlV1, sessionID, phoneNumber,
+		cfg.DevinoSenderNumber, url.QueryEscape(req.SMSMessage))
+
+	logx.LogAccess.Debugf("Start push notification via SMS, url: %s", url)
+	request, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		logx.LogError.Error(err)
+		return false
+	}
+
+	request.Header.Set("content-type", "application/x-www-form-urlencoded")
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		logx.LogError.Error(err)
+		return false
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		body, err := io.ReadAll(response.Body)
+		if err != nil {
+			logx.LogError.Error(err)
+			return false
+		}
+		logx.LogAccess.Debugf("SMS response status code != 200, response body: %s", string(body))
+		return false
+	}
+	return true
+}
+
+func getDevinoSessionID(cfg config.SectionSMS) string {
+	urlString := fmt.Sprintf(
+		"%s/user/sessionid?login=%s&password=%s",
+		cfg.DevinoApiUrlV1, cfg.DevinoLogin, cfg.DevinoPassword)
+
+	request, err := http.NewRequest(http.MethodPost, urlString, nil)
+	if err != nil {
+		logx.LogError.Error(err)
+		return ""
+	}
+
+	request.Header.Set("content-type", "application/x-www-form-urlencoded")
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		logx.LogError.Error(err)
+		return ""
+	}
+	defer response.Body.Close()
+
+	bodyBytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		logx.LogError.Error(err)
+		return ""
+	}
+
+	return strings.ReplaceAll(string(bodyBytes), "\"", "")
 }
