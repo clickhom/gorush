@@ -127,8 +127,9 @@ stat:
 `)
 
 const (
-	SMSProviderMTS    = "MTS"
-	SMSProviderDevino = "Devino"
+	SMSProviderMTS      = "MTS"
+	SMSProviderDevinoV1 = "Devino_v1"
+	SMSProviderDevinoV2 = "Devino_v2"
 )
 
 // ConfYaml is config structure.
@@ -324,9 +325,12 @@ type SectionSMS struct {
 	MTSApiKey       string `yaml:"mts_api_key"`
 	MTSSenderNumber string `yaml:"mts_sender_number"`
 
-	DevinoApiUrl       string `yaml:"devino_api_url"`
+	DevinoApiUrlV1     string `yaml:"devino_api_url_v1"`
+	DevinoApiUrlV2     string `yaml:"devino_api_url_v2"`
 	DevinoApiKey       string `yaml:"devino_api_key"`
 	DevinoSenderNumber string `yaml:"devino_sender_number"`
+	DevinoLogin        string `yaml:"devino_login"`
+	DevinoPassword     string `yaml:"devino_password"`
 }
 
 func setDefault() {
@@ -477,12 +481,15 @@ func LoadConf(confPath ...string) (*ConfYaml, error) {
 	conf.SMS.MTSApiUrl = viper.GetString("sms.mts_api_url")
 	conf.SMS.MTSApiKey = viper.GetString("sms.mts_api_key")
 	conf.SMS.MTSSenderNumber = viper.GetString("sms.mts_sender_number")
-	conf.SMS.DevinoApiUrl = viper.GetString("sms.devino_api_url")
+	conf.SMS.DevinoApiUrlV1 = viper.GetString("sms.devino_api_url_v1")
+	conf.SMS.DevinoApiUrlV2 = viper.GetString("sms.devino_api_url_v2")
 	conf.SMS.DevinoApiKey = viper.GetString("sms.devino_api_key")
 	conf.SMS.DevinoSenderNumber = viper.GetString("sms.devino_sender_number")
+	conf.SMS.DevinoLogin = viper.GetString("sms.devino_login")
+	conf.SMS.DevinoPassword = viper.GetString("sms.devino_password")
 
 	if conf.SMS.Provider == "" {
-		conf.SMS.Provider = SMSProviderDevino
+		conf.SMS.Provider = SMSProviderDevinoV1
 	}
 
 	if conf.Core.WorkerNum == int64(0) {
