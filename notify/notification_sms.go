@@ -102,6 +102,12 @@ func sendViaMTS(phoneNumber string, req *PushNotification, cfg config.SectionSMS
 }
 
 func sendViaDevinoV2(phoneNumber string, req *PushNotification, cfg config.SectionSMS) bool {
+	if !isValidPhonePrefix(phoneNumber) {
+		logx.LogAccess.Debugf("SMS skipping phone number %s, doesn't start with prefix +7 or +375",
+			phoneNumber)
+		return true
+	}
+
 	payload := PayloadDevino{
 		Messages: []SMSBodyDevino{
 			{
@@ -156,6 +162,12 @@ func sendSMS(url, authKey, phoneNumber string, payload any) bool {
 }
 
 func sendViaDevinoV1(phoneNumber string, req *PushNotification, cfg config.SectionSMS) bool {
+	if !isValidPhonePrefix(phoneNumber) {
+		logx.LogAccess.Debugf("SMS skipping phone number %s, doesn't start with prefix +7 or +375",
+			phoneNumber)
+		return true
+	}
+
 	sessionID := getDevinoSessionID(cfg)
 	url := fmt.Sprintf(
 		"%s/Sms/Send?SessionId=%s&DestinationAddress=%s&SourceAddress=%s&Data=%s&Validity=0",
@@ -217,4 +229,11 @@ func getDevinoSessionID(cfg config.SectionSMS) string {
 	}
 
 	return strings.ReplaceAll(string(bodyBytes), "\"", "")
+}
+
+func isValidPhonePrefix(phoneNumber string) bool {
+	return strings.HasPrefix(phoneNumber, "+7") ||
+		strings.HasPrefix(phoneNumber, "7") ||
+		strings.HasPrefix(phoneNumber, "+375") ||
+		strings.HasPrefix(phoneNumber, "375")
 }
