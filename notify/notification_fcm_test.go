@@ -44,7 +44,7 @@ func TestPushToAndroidWrongToken(t *testing.T) {
 
 	req := &PushNotification{
 		Tokens:   []string{"aaaaaa", "bbbbb"},
-		Platform: core.PlatFormAndroid,
+		Platform: core.PlatformAndroid,
 		Message:  "Welcome",
 	}
 
@@ -66,7 +66,7 @@ func TestPushToAndroidRightTokenForJSONLog(t *testing.T) {
 
 	req := &PushNotification{
 		Tokens:   []string{androidToken},
-		Platform: core.PlatFormAndroid,
+		Platform: core.PlatformAndroid,
 		Message:  "Welcome",
 	}
 
@@ -85,7 +85,7 @@ func TestPushToAndroidRightTokenForStringLog(t *testing.T) {
 
 	req := &PushNotification{
 		Tokens:   []string{androidToken},
-		Platform: core.PlatFormAndroid,
+		Platform: core.PlatformAndroid,
 		Message:  "Welcome",
 	}
 
@@ -109,7 +109,7 @@ func TestFCMMessage(t *testing.T) {
 	// ignore check token length if send topic message
 	req = &PushNotification{
 		Message:  "Test",
-		Platform: core.PlatFormAndroid,
+		Platform: core.PlatformAndroid,
 		Topic:    "/topics/foo-bar",
 	}
 
@@ -119,7 +119,7 @@ func TestFCMMessage(t *testing.T) {
 	// "condition": "'dogs' in topics || 'cats' in topics",
 	req = &PushNotification{
 		Message:   "Test",
-		Platform:  core.PlatFormAndroid,
+		Platform:  core.PlatformAndroid,
 		Condition: "'dogs' in topics || 'cats' in topics",
 	}
 
@@ -129,7 +129,7 @@ func TestFCMMessage(t *testing.T) {
 	// the message may specify at most 1000 registration IDs
 	req = &PushNotification{
 		Message:  "Test",
-		Platform: core.PlatFormAndroid,
+		Platform: core.PlatformAndroid,
 		Tokens:   make([]string, 501),
 	}
 
@@ -139,7 +139,7 @@ func TestFCMMessage(t *testing.T) {
 	// Pass
 	req = &PushNotification{
 		Message:  "Test",
-		Platform: core.PlatFormAndroid,
+		Platform: core.PlatformAndroid,
 		Tokens:   []string{"XXXXXXXXX"},
 	}
 

@@ -1,14 +1,12 @@
 package core
 
 const (
-	// PlatFormIos constant is 1 for iOS
-	PlatFormIos = iota + 1
-	// PlatFormAndroid constant is 2 for Android
-	PlatFormAndroid
-	// PlatFormHuawei constant is 3 for Huawei
-	PlatFormHuawei
-	// PlatformSMS constant is 4 for SMS
-	PlatformSMS
+	PlatformIOS             = 1
+	PlatformAndroid         = 2
+	PlatformHuawei          = 3
+	PlatformSMS             = 4
+	PlatformTelegramGateway = 5
+	PlatformCallAuto        = 6
 )
 
 const (

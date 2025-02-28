@@ -133,205 +133,226 @@ const (
 )
 
 // ConfYaml is config structure.
-type ConfYaml struct {
-	Core    SectionCore    `yaml:"core"`
-	API     SectionAPI     `yaml:"api"`
-	Android SectionAndroid `yaml:"android"`
-	Huawei  SectionHuawei  `yaml:"huawei"`
-	Ios     SectionIos     `yaml:"ios"`
-	Queue   SectionQueue   `yaml:"queue"`
-	Log     SectionLog     `yaml:"log"`
-	Stat    SectionStat    `yaml:"stat"`
-	GRPC    SectionGRPC    `yaml:"grpc"`
-	SMS     SectionSMS     `yaml:"sms"`
-}
+type (
+	ConfYaml struct {
+		Core            SectionCore            `yaml:"core"`
+		API             SectionAPI             `yaml:"api"`
+		Android         SectionAndroid         `yaml:"android"`
+		Huawei          SectionHuawei          `yaml:"huawei"`
+		Ios             SectionIos             `yaml:"ios"`
+		Queue           SectionQueue           `yaml:"queue"`
+		Log             SectionLog             `yaml:"log"`
+		Stat            SectionStat            `yaml:"stat"`
+		GRPC            SectionGRPC            `yaml:"grpc"`
+		SMS             SectionSMS             `yaml:"sms"`
+		CallAuto        SectionCallAuto        `yaml:"call_auto"`
+		TelegramGateway SectionTelegramGateway `yaml:"telegram_gateway"`
+	}
 
-// SectionCore is sub section of config.
-type SectionCore struct {
-	Enabled         bool           `yaml:"enabled"`
-	Address         string         `yaml:"address"`
-	ShutdownTimeout int64          `yaml:"shutdown_timeout"`
-	Port            string         `yaml:"port"`
-	MaxNotification int64          `yaml:"max_notification"`
-	WorkerNum       int64          `yaml:"worker_num"`
-	QueueNum        int64          `yaml:"queue_num"`
-	Mode            string         `yaml:"mode"`
-	Sync            bool           `yaml:"sync"`
-	SSL             bool           `yaml:"ssl"`
-	CertPath        string         `yaml:"cert_path"`
-	KeyPath         string         `yaml:"key_path"`
-	CertBase64      string         `yaml:"cert_base64"`
-	KeyBase64       string         `yaml:"key_base64"`
-	HTTPProxy       string         `yaml:"http_proxy"`
-	PID             SectionPID     `yaml:"pid"`
-	AutoTLS         SectionAutoTLS `yaml:"auto_tls"`
+	// SectionCore is sub section of config.
+	SectionCore struct {
+		Enabled         bool           `yaml:"enabled"`
+		Address         string         `yaml:"address"`
+		ShutdownTimeout int64          `yaml:"shutdown_timeout"`
+		Port            string         `yaml:"port"`
+		MaxNotification int64          `yaml:"max_notification"`
+		WorkerNum       int64          `yaml:"worker_num"`
+		QueueNum        int64          `yaml:"queue_num"`
+		Mode            string         `yaml:"mode"`
+		Sync            bool           `yaml:"sync"`
+		SSL             bool           `yaml:"ssl"`
+		CertPath        string         `yaml:"cert_path"`
+		KeyPath         string         `yaml:"key_path"`
+		CertBase64      string         `yaml:"cert_base64"`
+		KeyBase64       string         `yaml:"key_base64"`
+		HTTPProxy       string         `yaml:"http_proxy"`
+		PID             SectionPID     `yaml:"pid"`
+		AutoTLS         SectionAutoTLS `yaml:"auto_tls"`
 
-	FeedbackURL     string   `yaml:"feedback_hook_url"`
-	FeedbackTimeout int64    `yaml:"feedback_timeout"`
-	FeedbackHeader  []string `yaml:"feedback_header"`
-}
+		FeedbackURL     string   `yaml:"feedback_hook_url"`
+		FeedbackTimeout int64    `yaml:"feedback_timeout"`
+		FeedbackHeader  []string `yaml:"feedback_header"`
+	}
 
-// SectionAutoTLS support Let's Encrypt setting.
-type SectionAutoTLS struct {
-	Enabled bool   `yaml:"enabled"`
-	Folder  string `yaml:"folder"`
-	Host    string `yaml:"host"`
-}
+	// SectionAutoTLS support Let's Encrypt setting.
+	SectionAutoTLS struct {
+		Enabled bool   `yaml:"enabled"`
+		Folder  string `yaml:"folder"`
+		Host    string `yaml:"host"`
+	}
 
-// SectionAPI is sub section of config.
-type SectionAPI struct {
-	PushURI    string `yaml:"push_uri"`
-	StatGoURI  string `yaml:"stat_go_uri"`
-	StatAppURI string `yaml:"stat_app_uri"`
-	ConfigURI  string `yaml:"config_uri"`
-	SysStatURI string `yaml:"sys_stat_uri"`
-	MetricURI  string `yaml:"metric_uri"`
-	HealthURI  string `yaml:"health_uri"`
-}
+	// SectionAPI is sub section of config.
+	SectionAPI struct {
+		PushURI           string `yaml:"push_uri"`
+		ScheduledRUSMSURI string `yaml:"scheduled_ru_sms_uri"`
+		StatGoURI         string `yaml:"stat_go_uri"`
+		StatAppURI        string `yaml:"stat_app_uri"`
+		ConfigURI         string `yaml:"config_uri"`
+		SysStatURI        string `yaml:"sys_stat_uri"`
+		MetricURI         string `yaml:"metric_uri"`
+		HealthURI         string `yaml:"health_uri"`
+	}
 
-// SectionAndroid is sub section of config.
-type SectionAndroid struct {
-	Enabled    bool   `yaml:"enabled"`
-	KeyPath    string `yaml:"key_path"`
-	Credential string `yaml:"credential"`
-	MaxRetry   int    `yaml:"max_retry"`
-}
+	// SectionAndroid is sub section of config.
+	SectionAndroid struct {
+		Enabled    bool   `yaml:"enabled"`
+		KeyPath    string `yaml:"key_path"`
+		Credential string `yaml:"credential"`
+		MaxRetry   int    `yaml:"max_retry"`
+	}
 
-// SectionHuawei is sub section of config.
-type SectionHuawei struct {
-	Enabled   bool   `yaml:"enabled"`
-	AppSecret string `yaml:"appsecret"`
-	AppID     string `yaml:"appid"`
-	MaxRetry  int    `yaml:"max_retry"`
-}
+	// SectionHuawei is sub section of config.
+	SectionHuawei struct {
+		Enabled   bool   `yaml:"enabled"`
+		AppSecret string `yaml:"appsecret"`
+		AppID     string `yaml:"appid"`
+		MaxRetry  int    `yaml:"max_retry"`
+	}
 
-// SectionIos is sub section of config.
-type SectionIos struct {
-	Enabled             bool   `yaml:"enabled"`
-	KeyPath             string `yaml:"key_path"`
-	KeyBase64           string `yaml:"key_base64"`
-	KeyType             string `yaml:"key_type"`
-	Password            string `yaml:"password"`
-	Production          bool   `yaml:"production"`
-	MaxConcurrentPushes uint   `yaml:"max_concurrent_pushes"`
-	MaxRetry            int    `yaml:"max_retry"`
-	KeyID               string `yaml:"key_id"`
-	TeamID              string `yaml:"team_id"`
-}
+	// SectionIos is sub section of config.
+	SectionIos struct {
+		Enabled             bool   `yaml:"enabled"`
+		KeyPath             string `yaml:"key_path"`
+		KeyBase64           string `yaml:"key_base64"`
+		KeyType             string `yaml:"key_type"`
+		Password            string `yaml:"password"`
+		Production          bool   `yaml:"production"`
+		MaxConcurrentPushes uint   `yaml:"max_concurrent_pushes"`
+		MaxRetry            int    `yaml:"max_retry"`
+		KeyID               string `yaml:"key_id"`
+		TeamID              string `yaml:"team_id"`
+	}
 
-// SectionLog is sub section of config.
-type SectionLog struct {
-	Format       string `yaml:"format"`
-	AccessLog    string `yaml:"access_log"`
-	AccessLevel  string `yaml:"access_level"`
-	ErrorLog     string `yaml:"error_log"`
-	ErrorLevel   string `yaml:"error_level"`
-	HideToken    bool   `yaml:"hide_token"`
-	HideMessages bool   `yaml:"hide_messages"`
-}
+	// SectionLog is sub section of config.
+	SectionLog struct {
+		Format       string `yaml:"format"`
+		AccessLog    string `yaml:"access_log"`
+		AccessLevel  string `yaml:"access_level"`
+		ErrorLog     string `yaml:"error_log"`
+		ErrorLevel   string `yaml:"error_level"`
+		HideToken    bool   `yaml:"hide_token"`
+		HideMessages bool   `yaml:"hide_messages"`
+	}
 
-// SectionStat is sub section of config.
-type SectionStat struct {
-	Engine   string          `yaml:"engine"`
-	Redis    SectionRedis    `yaml:"redis"`
-	BoltDB   SectionBoltDB   `yaml:"boltdb"`
-	BuntDB   SectionBuntDB   `yaml:"buntdb"`
-	LevelDB  SectionLevelDB  `yaml:"leveldb"`
-	BadgerDB SectionBadgerDB `yaml:"badgerdb"`
-}
+	// SectionStat is sub section of config.
+	SectionStat struct {
+		Engine   string          `yaml:"engine"`
+		Redis    SectionRedis    `yaml:"redis"`
+		BoltDB   SectionBoltDB   `yaml:"boltdb"`
+		BuntDB   SectionBuntDB   `yaml:"buntdb"`
+		LevelDB  SectionLevelDB  `yaml:"leveldb"`
+		BadgerDB SectionBadgerDB `yaml:"badgerdb"`
+	}
 
-// SectionQueue is sub section of config.
-type SectionQueue struct {
-	Engine string            `yaml:"engine"`
-	NSQ    SectionNSQ        `yaml:"nsq"`
-	NATS   SectionNATS       `yaml:"nats"`
-	Redis  SectionRedisQueue `yaml:"redis"`
-}
+	// SectionQueue is sub section of config.
+	SectionQueue struct {
+		Engine string            `yaml:"engine"`
+		NSQ    SectionNSQ        `yaml:"nsq"`
+		NATS   SectionNATS       `yaml:"nats"`
+		Redis  SectionRedisQueue `yaml:"redis"`
+	}
 
-// SectionNSQ is sub section of config.
-type SectionNSQ struct {
-	Addr    string `yaml:"addr"`
-	Topic   string `yaml:"topic"`
-	Channel string `yaml:"channel"`
-}
+	// SectionNSQ is sub section of config.
+	SectionNSQ struct {
+		Addr    string `yaml:"addr"`
+		Topic   string `yaml:"topic"`
+		Channel string `yaml:"channel"`
+	}
 
-// SectionNATS is sub section of config.
-type SectionNATS struct {
-	Addr  string `yaml:"addr"`
-	Subj  string `yaml:"subj"`
-	Queue string `yaml:"queue"`
-}
+	// SectionNATS is sub section of config.
+	SectionNATS struct {
+		Addr  string `yaml:"addr"`
+		Subj  string `yaml:"subj"`
+		Queue string `yaml:"queue"`
+	}
 
-// SectionRedisQueue is sub section of config.
-type SectionRedisQueue struct {
-	Addr       string `yaml:"addr"`
-	Username   string `yaml:"username"`
-	Password   string `yaml:"password"`
-	StreamName string `yaml:"stream_name"`
-	Group      string `yaml:"group"`
-	Consumer   string `yaml:"consumer"`
-	WithTLS    bool   `yaml:"with_tls"`
-}
+	// SectionRedisQueue is sub section of config.
+	SectionRedisQueue struct {
+		Addr       string `yaml:"addr"`
+		Username   string `yaml:"username"`
+		Password   string `yaml:"password"`
+		StreamName string `yaml:"stream_name"`
+		Group      string `yaml:"group"`
+		Consumer   string `yaml:"consumer"`
+		WithTLS    bool   `yaml:"with_tls"`
+	}
 
-// SectionRedis is sub section of config.
-type SectionRedis struct {
-	Cluster  bool   `yaml:"cluster"`
-	Addr     string `yaml:"addr"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	DB       int    `yaml:"db"`
-}
+	// SectionRedis is sub section of config.
+	SectionRedis struct {
+		Cluster  bool   `yaml:"cluster"`
+		Addr     string `yaml:"addr"`
+		Username string `yaml:"username"`
+		Password string `yaml:"password"`
+		DB       int    `yaml:"db"`
+	}
 
-// SectionBoltDB is sub section of config.
-type SectionBoltDB struct {
-	Path   string `yaml:"path"`
-	Bucket string `yaml:"bucket"`
-}
+	// SectionBoltDB is sub section of config.
+	SectionBoltDB struct {
+		Path   string `yaml:"path"`
+		Bucket string `yaml:"bucket"`
+	}
 
-// SectionBuntDB is sub section of config.
-type SectionBuntDB struct {
-	Path string `yaml:"path"`
-}
+	// SectionBuntDB is sub section of config.
+	SectionBuntDB struct {
+		Path string `yaml:"path"`
+	}
 
-// SectionLevelDB is sub section of config.
-type SectionLevelDB struct {
-	Path string `yaml:"path"`
-}
+	// SectionLevelDB is sub section of config.
+	SectionLevelDB struct {
+		Path string `yaml:"path"`
+	}
 
-// SectionBadgerDB is sub section of config.
-type SectionBadgerDB struct {
-	Path string `yaml:"path"`
-}
+	// SectionBadgerDB is sub section of config.
+	SectionBadgerDB struct {
+		Path string `yaml:"path"`
+	}
 
-// SectionPID is sub section of config.
-type SectionPID struct {
-	Enabled  bool   `yaml:"enabled"`
-	Path     string `yaml:"path"`
-	Override bool   `yaml:"override"`
-}
+	// SectionPID is sub section of config.
+	SectionPID struct {
+		Enabled  bool   `yaml:"enabled"`
+		Path     string `yaml:"path"`
+		Override bool   `yaml:"override"`
+	}
 
-// SectionGRPC is sub section of config.
-type SectionGRPC struct {
-	Enabled bool   `yaml:"enabled"`
-	Port    string `yaml:"port"`
-}
+	// SectionGRPC is sub section of config.
+	SectionGRPC struct {
+		Enabled bool   `yaml:"enabled"`
+		Port    string `yaml:"port"`
+	}
 
-// SectionSMS is sub section of config.
-type SectionSMS struct {
-	Enabled  bool   `yaml:"enabled"`
-	Provider string `yaml:"provider"`
+	// SectionSMS is sub section of config.
+	SectionSMS struct {
+		Enabled  bool   `yaml:"enabled"`
+		Provider string `yaml:"provider"`
 
-	MTSApiUrl       string `yaml:"mts_api_url"`
-	MTSApiKey       string `yaml:"mts_api_key"`
-	MTSSenderNumber string `yaml:"mts_sender_number"`
+		MTSApiURL       string `yaml:"mts_api_url"`
+		MTSApiKey       string `yaml:"mts_api_key"`
+		MTSSenderNumber string `yaml:"mts_sender_number"`
 
-	DevinoApiUrlV1     string `yaml:"devino_api_url_v1"`
-	DevinoApiUrlV2     string `yaml:"devino_api_url_v2"`
-	DevinoApiKey       string `yaml:"devino_api_key"`
-	DevinoSenderNumber string `yaml:"devino_sender_number"`
-	DevinoLogin        string `yaml:"devino_login"`
-	DevinoPassword     string `yaml:"devino_password"`
-}
+		DevinoApiURLV1     string `yaml:"devino_api_url_v1"`
+		DevinoApiURLV2     string `yaml:"devino_api_url_v2"`
+		DevinoApiKey       string `yaml:"devino_api_key"`
+		DevinoSenderNumber string `yaml:"devino_sender_number"`
+		DevinoLogin        string `yaml:"devino_login"`
+		DevinoPassword     string `yaml:"devino_password"`
+	}
+
+	// SectionTelegramGateway is subsection of config.
+	SectionTelegramGateway struct {
+		Enabled     bool   `yaml:"enabled"`
+		ApiURL      string `yaml:"api_url"`
+		ApiToken    string `yaml:"api_token"`
+		CallbackURL string `yaml:"callback_url"`
+	}
+
+	// SectionCallAuto is sub section of config.
+	SectionCallAuto struct {
+		Enabled   bool   `yaml:"enabled"`
+		ApiURL    string `yaml:"api_url"`
+		AppID     string `yaml:"app_id"`
+		AppSecret string `yaml:"app_secret"`
+	}
+)
 
 func setDefault() {
 	viper.SetDefault("ios.max_concurrent_pushes", uint(100))
@@ -402,6 +423,7 @@ func LoadConf(confPath ...string) (*ConfYaml, error) {
 
 	// Api
 	conf.API.PushURI = viper.GetString("api.push_uri")
+	conf.API.ScheduledRUSMSURI = viper.GetString("api.scheduled_ru_sms_uri")
 	conf.API.StatGoURI = viper.GetString("api.stat_go_uri")
 	conf.API.StatAppURI = viper.GetString("api.stat_app_uri")
 	conf.API.ConfigURI = viper.GetString("api.config_uri")
@@ -478,11 +500,11 @@ func LoadConf(confPath ...string) (*ConfYaml, error) {
 	// SMS
 	conf.SMS.Enabled = viper.GetBool("sms.enabled")
 	conf.SMS.Provider = viper.GetString("sms.provider")
-	conf.SMS.MTSApiUrl = viper.GetString("sms.mts_api_url")
+	conf.SMS.MTSApiURL = viper.GetString("sms.mts_api_url")
 	conf.SMS.MTSApiKey = viper.GetString("sms.mts_api_key")
 	conf.SMS.MTSSenderNumber = viper.GetString("sms.mts_sender_number")
-	conf.SMS.DevinoApiUrlV1 = viper.GetString("sms.devino_api_url_v1")
-	conf.SMS.DevinoApiUrlV2 = viper.GetString("sms.devino_api_url_v2")
+	conf.SMS.DevinoApiURLV1 = viper.GetString("sms.devino_api_url_v1")
+	conf.SMS.DevinoApiURLV2 = viper.GetString("sms.devino_api_url_v2")
 	conf.SMS.DevinoApiKey = viper.GetString("sms.devino_api_key")
 	conf.SMS.DevinoSenderNumber = viper.GetString("sms.devino_sender_number")
 	conf.SMS.DevinoLogin = viper.GetString("sms.devino_login")
@@ -491,6 +513,18 @@ func LoadConf(confPath ...string) (*ConfYaml, error) {
 	if conf.SMS.Provider == "" {
 		conf.SMS.Provider = SMSProviderDevinoV1
 	}
+
+	// Telegram
+	conf.TelegramGateway.Enabled = viper.GetBool("telegram_gateway.enabled")
+	conf.TelegramGateway.ApiURL = viper.GetString("telegram_gateway.api_url")
+	conf.TelegramGateway.ApiToken = viper.GetString("telegram_gateway.api_token")
+	conf.TelegramGateway.CallbackURL = viper.GetString("telegram_gateway.callback_url")
+
+	// CallAuto
+	conf.CallAuto.Enabled = viper.GetBool("call_auto.enabled")
+	conf.CallAuto.ApiURL = viper.GetString("call_auto.api_url")
+	conf.CallAuto.AppID = viper.GetString("call_auto.app_id")
+	conf.CallAuto.AppSecret = viper.GetString("call_auto.app_secret")
 
 	if conf.Core.WorkerNum == int64(0) {
 		conf.Core.WorkerNum = int64(runtime.NumCPU())
