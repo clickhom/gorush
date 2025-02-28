@@ -62,6 +62,11 @@ type ResponsePush struct {
 	Logs []logx.LogPushEntry `json:"logs"`
 }
 
+// RequestDeleteScheduledRUSMS body for request that deletes to be sent ru sms
+type RequestDeleteScheduledRUSMS struct {
+	RequestID string `json:"request_id"`
+}
+
 // PushNotification is single notification request
 type PushNotification struct {
 	// Common
@@ -119,6 +124,9 @@ type PushNotification struct {
 	SMSMessage   string   `json:"SMSMessage,omitempty"`
 	TemplateID   string   `json:"template_id,omitempty"`
 
+	// Telegram gateway
+	TelegramGatewayCode string `json:"telegram_gateway_code,omitempty"`
+
 	// ref: https://github.com/sideshow/apns2/blob/54928d6193dfe300b6b88dad72b7e2ae138d4f0a/payload/builder.go#L7-L24
 	InterruptionLevel string `json:"interruption_level,omitempty"`
 
@@ -148,7 +156,7 @@ func (p *PushNotification) Payload() []byte {
 // IsTopic check if message format is topic for FCM
 // ref: https://firebase.google.com/docs/cloud-messaging/send-message#topic-http-post-request
 func (p *PushNotification) IsTopic() bool {
-	if p.Platform == core.PlatFormHuawei || p.Platform == core.PlatFormAndroid {
+	if p.Platform == core.PlatformHuawei || p.Platform == core.PlatformAndroid {
 		return p.Topic != "" || p.Condition != ""
 	}
 
@@ -169,15 +177,15 @@ func CheckMessage(req *PushNotification) error {
 	}
 
 	switch req.Platform {
-	case core.PlatFormIos:
+	case core.PlatformIOS:
 		if len(req.Tokens) == 1 && req.Tokens[0] == "" {
 			msg = "the device token cannot be empty"
 			logx.LogAccess.Debug(msg)
 			return errors.New(msg)
 		}
 	case
-		core.PlatFormAndroid,
-		core.PlatFormHuawei:
+		core.PlatformAndroid,
+		core.PlatformHuawei:
 		if len(req.Tokens) > 500 {
 			// https://firebase.google.com/docs/cloud-messaging/send-message#send-messages-to-multiple-devices
 			msg = "you can specify up to 500 device registration tokens per invocation"
@@ -258,14 +266,18 @@ func SendNotification(
 	}
 
 	switch v.Platform {
-	case core.PlatFormIos:
+	case core.PlatformIOS:
 		resp, err = PushToIOS(ctx, v, cfg)
-	case core.PlatFormAndroid:
+	case core.PlatformAndroid:
 		resp, err = PushToAndroid(ctx, v, cfg)
-	case core.PlatFormHuawei:
+	case core.PlatformHuawei:
 		resp, err = PushToHuawei(ctx, v, cfg)
 	case core.PlatformSMS:
-		SendRUSMS(v, cfg)
+		SendRUSMS(v, cfg, -1)
+	case core.PlatformTelegramGateway:
+		SendTelegramGateway(v, cfg)
+	case core.PlatformCallAuto:
+		SendTelphinCall(v, cfg)
 	}
 
 	if cfg.Core.FeedbackURL != "" {

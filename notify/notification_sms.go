@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/appleboy/gorush/config"
 	"github.com/appleboy/gorush/logx"
@@ -34,37 +36,58 @@ type (
 	PayloadDevino struct {
 		Messages []SMSBodyDevino `json:"messages"`
 	}
+
+	scheduledRUSMSRequest struct {
+		sendAt           int64
+		pushNotification *PushNotification
+		cfg              *config.ConfYaml
+		index            int
+	}
 )
 
 const phoneRegexPattern = "(?i)^[7][9][0-9]+$"
 
-var phonesRegex = regexp.MustCompile(phoneRegexPattern)
+var (
+	phonesRegex = regexp.MustCompile(phoneRegexPattern)
 
-func SendRUSMS(req *PushNotification, cfg *config.ConfYaml) {
-	if req == nil {
-		return
-	}
-	if !cfg.SMS.Enabled {
+	scheduledRUSMS              = make(map[string]scheduledRUSMSRequest)
+	scheduledRUSMSMutex         = sync.Mutex{}
+	scheduledRUSMSRunWorkerOnce sync.Once
+)
+
+// TODO: remake logs as in send via FCM, APNS, HMS
+func SendRUSMS(req *PushNotification, cfg *config.ConfYaml, index int) {
+	if req == nil || !cfg.SMS.Enabled {
 		return
 	}
 
 	var sendSMS func(phoneNumber string, req *PushNotification, cfg config.SectionSMS) bool
 
-	if cfg.SMS.Provider == config.SMSProviderMTS {
+	switch cfg.SMS.Provider {
+	case config.SMSProviderMTS:
 		sendSMS = sendViaMTS
-	} else if cfg.SMS.Provider == config.SMSProviderDevinoV1 {
+	case config.SMSProviderDevinoV1:
 		sendSMS = sendViaDevinoV1
-	} else if cfg.SMS.Provider == config.SMSProviderDevinoV2 {
+	case config.SMSProviderDevinoV2:
 		sendSMS = sendViaDevinoV2
-	} else {
+	default:
 		logx.LogError.Errorf("Unsupported SMS provider: %s", cfg.SMS.Provider)
 		return
 	}
 
-	for _, phoneNumber := range req.PhoneNumbers {
-		if !sendSMS(phoneNumber, req, cfg.SMS) {
+	if index < 0 {
+		for _, phoneNumber := range req.PhoneNumbers {
+			if !sendSMS(phoneNumber, req, cfg.SMS) {
+				return
+			}
+		}
+	} else {
+		if index >= len(req.PhoneNumbers) {
+			logx.LogError.Errorf("Invalid phone number index %d with slice length %d for SMS", index, len(req.PhoneNumbers))
 			return
 		}
+
+		sendSMS(req.PhoneNumbers[index], req, cfg.SMS)
 	}
 }
 
@@ -98,7 +121,7 @@ func sendViaMTS(phoneNumber string, req *PushNotification, cfg config.SectionSMS
 	}
 
 	authKey := fmt.Sprintf("Bearer %s", cfg.MTSApiKey)
-	return sendSMS(cfg.MTSApiUrl, authKey, phoneNumber, payload)
+	return sendSMS(cfg.MTSApiURL, authKey, phoneNumber, payload)
 }
 
 func sendViaDevinoV2(phoneNumber string, req *PushNotification, cfg config.SectionSMS) bool {
@@ -120,7 +143,7 @@ func sendViaDevinoV2(phoneNumber string, req *PushNotification, cfg config.Secti
 	}
 
 	authKey := fmt.Sprintf("Key %s", cfg.DevinoApiKey)
-	return sendSMS(cfg.DevinoApiUrlV2, authKey, phoneNumber, payload)
+	return sendSMS(cfg.DevinoApiURLV2, authKey, phoneNumber, payload)
 }
 
 func sendSMS(url, authKey, phoneNumber string, payload any) bool {
@@ -163,7 +186,8 @@ func sendSMS(url, authKey, phoneNumber string, payload any) bool {
 
 func sendViaDevinoV1(phoneNumber string, req *PushNotification, cfg config.SectionSMS) bool {
 	if !isValidPhonePrefix(phoneNumber) {
-		logx.LogAccess.Debugf("SMS skipping phone number %s, doesn't start with prefix +7 or +375",
+		logx.LogAccess.Debugf(
+			"SMS skipping phone number %s, doesn't start with prefix +7 or +375",
 			phoneNumber)
 		return true
 	}
@@ -171,7 +195,7 @@ func sendViaDevinoV1(phoneNumber string, req *PushNotification, cfg config.Secti
 	sessionID := getDevinoSessionID(cfg)
 	url := fmt.Sprintf(
 		"%s/Sms/Send?SessionId=%s&DestinationAddress=%s&SourceAddress=%s&Data=%s&Validity=0",
-		cfg.DevinoApiUrlV1, sessionID, phoneNumber,
+		cfg.DevinoApiURLV1, sessionID, phoneNumber,
 		cfg.DevinoSenderNumber, url.QueryEscape(req.SMSMessage))
 
 	logx.LogAccess.Debugf("Start push notification via SMS, url: %s", url)
@@ -205,7 +229,7 @@ func sendViaDevinoV1(phoneNumber string, req *PushNotification, cfg config.Secti
 func getDevinoSessionID(cfg config.SectionSMS) string {
 	urlString := fmt.Sprintf(
 		"%s/user/sessionid?login=%s&password=%s",
-		cfg.DevinoApiUrlV1, cfg.DevinoLogin, cfg.DevinoPassword)
+		cfg.DevinoApiURLV1, cfg.DevinoLogin, cfg.DevinoPassword)
 
 	request, err := http.NewRequest(http.MethodPost, urlString, nil)
 	if err != nil {
@@ -229,6 +253,52 @@ func getDevinoSessionID(cfg config.SectionSMS) string {
 	}
 
 	return strings.ReplaceAll(string(bodyBytes), "\"", "")
+}
+
+func scheduleRUSMS(requestID string, sendAt int64, req *PushNotification, cfg *config.ConfYaml, index int) {
+	scheduledRUSMSMutex.Lock()
+	defer scheduledRUSMSMutex.Unlock()
+
+	scheduledRUSMS[requestID] = scheduledRUSMSRequest{
+		sendAt:           sendAt,
+		pushNotification: req,
+		cfg:              cfg,
+		index:            index,
+	}
+}
+
+func DescheduleRUSMS(requestID string) {
+	scheduledRUSMSMutex.Lock()
+	defer scheduledRUSMSMutex.Unlock()
+
+	delete(scheduledRUSMS, requestID)
+}
+
+func sendScheduledRUSMS() {
+	scheduledRUSMSMutex.Lock()
+	defer scheduledRUSMSMutex.Unlock()
+
+	now := time.Now().Unix()
+
+	for requestID, sms := range scheduledRUSMS {
+		if sms.sendAt > now {
+			continue
+		}
+
+		go SendRUSMS(sms.pushNotification, sms.cfg, sms.index)
+
+		delete(scheduledRUSMS, requestID)
+	}
+}
+
+func RunScheduledRUSMSWorker() {
+	scheduledRUSMSRunWorkerOnce.Do(func() {
+		t := time.NewTicker(2 * time.Second)
+
+		for range t.C {
+			sendScheduledRUSMS()
+		}
+	})
 }
 
 func isValidPhonePrefix(phoneNumber string) bool {

@@ -116,28 +116,32 @@ func SetLogLevel(log *logrus.Logger, levelString string) error {
 	return nil
 }
 
-func colorForPlatForm(platform int) string {
+func colorForPlatform(platform int) string {
 	switch platform {
-	case core.PlatFormIos:
+	case core.PlatformIOS:
 		return blue
-	case core.PlatFormAndroid:
+	case core.PlatformAndroid:
 		return yellow
-	case core.PlatFormHuawei:
+	case core.PlatformHuawei:
 		return green
 	case core.PlatformSMS:
 		return green
+	case core.PlatformTelegramGateway:
+		return blue
+	case core.PlatformCallAuto:
+		return yellow
 	default:
 		return reset
 	}
 }
 
-func typeForPlatForm(platform int) string {
+func typeForPlatform(platform int) string {
 	switch platform {
-	case core.PlatFormIos:
+	case core.PlatformIOS:
 		return "ios"
-	case core.PlatFormAndroid:
+	case core.PlatformAndroid:
 		return "android"
-	case core.PlatFormHuawei:
+	case core.PlatformHuawei:
 		return "huawei"
 	default:
 		return ""
@@ -166,7 +170,7 @@ func hideToken(token string, markLen int) string {
 func GetLogPushEntry(input *InputLog) LogPushEntry {
 	var errMsg string
 
-	plat := typeForPlatForm(input.Platform)
+	plat := typeForPlatform(input.Platform)
 
 	if input.Error != nil {
 		errMsg = input.Error.Error()
@@ -210,7 +214,7 @@ func LogPush(input *InputLog) LogPushEntry {
 	var platColor, resetColor, output string
 
 	if isTerm {
-		platColor = colorForPlatForm(input.Platform)
+		platColor = colorForPlatform(input.Platform)
 		resetColor = reset
 	}
 
