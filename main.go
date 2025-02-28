@@ -180,7 +180,7 @@ func main() {
 	if opts.Android.Enabled {
 		cfg.Android.Enabled = opts.Android.Enabled
 		req := &notify.PushNotification{
-			Platform: core.PlatFormAndroid,
+			Platform: core.PlatformAndroid,
 			Message:  message,
 			Title:    title,
 		}
@@ -210,7 +210,7 @@ func main() {
 	if opts.Huawei.Enabled {
 		cfg.Huawei.Enabled = opts.Huawei.Enabled
 		req := &notify.PushNotification{
-			Platform: core.PlatFormHuawei,
+			Platform: core.PlatformHuawei,
 			Message:  message,
 			Title:    title,
 		}
@@ -249,7 +249,7 @@ func main() {
 
 		cfg.Ios.Enabled = opts.Ios.Enabled
 		req := &notify.PushNotification{
-			Platform: core.PlatFormIos,
+			Platform: core.PlatformIOS,
 			Message:  message,
 			Title:    title,
 		}
@@ -384,6 +384,8 @@ func main() {
 			logx.LogError.Fatal(err)
 		}
 	}
+
+	go notify.RunScheduledRUSMSWorker()
 
 	g.AddRunningJob(func(ctx context.Context) error {
 		return router.RunHTTPServer(ctx, cfg, q)

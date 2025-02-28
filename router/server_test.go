@@ -326,7 +326,7 @@ func TestMutableContent(t *testing.T) {
 			"notifications": []gofight.D{
 				{
 					"tokens":          []string{"aaaaa", "bbbbb"},
-					"platform":        core.PlatFormAndroid,
+					"platform":        core.PlatformAndroid,
 					"message":         "Welcome From API",
 					"mutable_content": 1,
 					"topic":           "test",
@@ -357,12 +357,12 @@ func TestOutOfRangeMaxNotifications(t *testing.T) {
 			"notifications": []gofight.D{
 				{
 					"tokens":   []string{"aaaaa", "bbbbb"},
-					"platform": core.PlatFormAndroid,
+					"platform": core.PlatformAndroid,
 					"message":  "Welcome API From Android",
 				},
 				{
 					"tokens":   []string{"aaaaa", "bbbbb"},
-					"platform": core.PlatFormAndroid,
+					"platform": core.PlatformAndroid,
 					"message":  "Welcome API From Android",
 				},
 			},
@@ -388,7 +388,7 @@ func TestSuccessPushHandler(t *testing.T) {
 			"notifications": []gofight.D{
 				{
 					"tokens":   []string{androidToken, "bbbbb"},
-					"platform": core.PlatFormAndroid,
+					"platform": core.PlatformAndroid,
 					"message":  "Welcome Android",
 				},
 			},
@@ -487,13 +487,13 @@ func TestSenMultipleNotifications(t *testing.T) {
 			// ios
 			{
 				Tokens:   []string{"11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"},
-				Platform: core.PlatFormIos,
+				Platform: core.PlatformIOS,
 				Message:  "Welcome iOS",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, "bbbbb"},
-				Platform: core.PlatFormAndroid,
+				Platform: core.PlatformAndroid,
 				Message:  "Welcome Android",
 			},
 		},
@@ -523,13 +523,13 @@ func TestDisabledAndroidNotifications(t *testing.T) {
 			// ios
 			{
 				Tokens:   []string{"11aa01229f15f0f0c5209d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"},
-				Platform: core.PlatFormIos,
+				Platform: core.PlatformIOS,
 				Message:  "Welcome iOS",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, "bbbbb"},
-				Platform: core.PlatFormAndroid,
+				Platform: core.PlatformAndroid,
 				Message:  "Welcome Android",
 			},
 		},
@@ -564,13 +564,13 @@ func TestSyncModeForNotifications(t *testing.T) {
 				Tokens: []string{
 					"11aa01229f15f0f0c12029d8c111d1ae1f2365f14cebc4af26cd6d76b7919ef7",
 				},
-				Platform: core.PlatFormIos,
+				Platform: core.PlatformIOS,
 				Message:  "Welcome iOS Sync",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, "bbbbb"},
-				Platform: core.PlatFormAndroid,
+				Platform: core.PlatformAndroid,
 				Message:  "Welcome Android Sync",
 			},
 		},
@@ -599,21 +599,21 @@ func TestSyncModeForTopicNotification(t *testing.T) {
 				// error:InvalidParameters
 				// Check that the provided parameters have the right name and type.
 				Topic:    "/topics/foo-bar@@@##",
-				Platform: core.PlatFormAndroid,
+				Platform: core.PlatformAndroid,
 				Message:  "This is a Firebase Cloud Messaging Topic Message!",
 			},
 			// android
 			{
 				// success
 				Topic:    "/topics/foo-bar",
-				Platform: core.PlatFormAndroid,
+				Platform: core.PlatformAndroid,
 				Message:  "This is a Firebase Cloud Messaging Topic Message!",
 			},
 			// android
 			{
 				// success
 				Condition: "'dogs' in topics || 'cats' in topics",
-				Platform:  core.PlatFormAndroid,
+				Platform:  core.PlatformAndroid,
 				Message:   "This is a Firebase Cloud Messaging Topic Message!",
 			},
 		},
@@ -640,7 +640,7 @@ func TestSyncModeForDeviceGroupNotification(t *testing.T) {
 			// android
 			{
 				Topic:    "aUniqueKey",
-				Platform: core.PlatFormAndroid,
+				Platform: core.PlatformAndroid,
 				Message:  "This is a Firebase Cloud Messaging Device Group Message!",
 			},
 		},
@@ -671,13 +671,13 @@ func TestDisabledIosNotifications(t *testing.T) {
 			// ios
 			{
 				Tokens:   []string{"11aa01229f15f0f0c52021d8cf3cd0ae1f2365fe4cebc4af26cd6d76b7919ef7"},
-				Platform: core.PlatFormIos,
+				Platform: core.PlatformIOS,
 				Message:  "Welcome iOS platform",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, androidToken + "_"},
-				Platform: core.PlatFormAndroid,
+				Platform: core.PlatformAndroid,
 				Message:  "Welcome Android platform",
 			},
 		},

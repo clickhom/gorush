@@ -122,18 +122,18 @@ func TestErrorLogPath(t *testing.T) {
 	))
 }
 
-func TestPlatFormType(t *testing.T) {
-	assert.Equal(t, "ios", typeForPlatForm(core.PlatFormIos))
-	assert.Equal(t, "android", typeForPlatForm(core.PlatFormAndroid))
-	assert.Equal(t, "huawei", typeForPlatForm(core.PlatFormHuawei))
-	assert.Equal(t, "", typeForPlatForm(10000))
+func TestPlatformType(t *testing.T) {
+	assert.Equal(t, "ios", typeForPlatform(core.PlatformIOS))
+	assert.Equal(t, "android", typeForPlatform(core.PlatformAndroid))
+	assert.Equal(t, "huawei", typeForPlatform(core.PlatformHuawei))
+	assert.Equal(t, "", typeForPlatform(10000))
 }
 
-func TestPlatFormColor(t *testing.T) {
-	assert.Equal(t, blue, colorForPlatForm(core.PlatFormIos))
-	assert.Equal(t, yellow, colorForPlatForm(core.PlatFormAndroid))
-	assert.Equal(t, green, colorForPlatForm(core.PlatFormHuawei))
-	assert.Equal(t, reset, colorForPlatForm(1000000))
+func TestPlatformColor(t *testing.T) {
+	assert.Equal(t, blue, colorForPlatform(core.PlatformIOS))
+	assert.Equal(t, yellow, colorForPlatform(core.PlatformAndroid))
+	assert.Equal(t, green, colorForPlatform(core.PlatformHuawei))
+	assert.Equal(t, reset, colorForPlatform(1000000))
 }
 
 func TestHideToken(t *testing.T) {

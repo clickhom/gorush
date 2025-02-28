@@ -106,6 +106,30 @@ func pushHandler(cfg *config.ConfYaml, q *queue.Queue) gin.HandlerFunc {
 	}
 }
 
+func deleteScheduledRUSMSHandler(cfg *config.ConfYaml) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var body notify.RequestDeleteScheduledRUSMS
+
+		if err := c.ShouldBindJSON(&body); err != nil {
+			logx.LogAccess.Debug(err)
+			abortWithError(c, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		ctx, cancel := context.WithCancel(context.Background())
+		go func() {
+			<-c.Request.Context().Done()
+			if cfg.Core.Sync {
+				cancel()
+			}
+		}()
+
+		handleDeleteScheduledRUSMS(ctx, body.RequestID)
+
+		c.Status(http.StatusOK)
+	}
+}
+
 func configHandler(cfg *config.ConfYaml) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.YAML(http.StatusCreated, cfg)
@@ -204,15 +228,14 @@ func routerEngine(cfg *config.ConfYaml, q *queue.Queue) *gin.Engine {
 			cfg.API.MetricURI,
 		}),
 	))
-	r.Use(gin.Recovery())
-	r.Use(VersionMiddleware())
-	r.Use(StatMiddleware())
+	r.Use(gin.Recovery(), VersionMiddleware(), StatMiddleware())
 
 	r.GET(cfg.API.StatGoURI, api.GinHandler)
 	r.GET(cfg.API.StatAppURI, appStatusHandler(q))
 	r.GET(cfg.API.ConfigURI, configHandler(cfg))
 	r.GET(cfg.API.SysStatURI, sysStatsHandler())
 	r.POST(cfg.API.PushURI, pushHandler(cfg, q))
+	r.DELETE(cfg.API.ScheduledRUSMSURI, deleteScheduledRUSMSHandler(cfg))
 	r.GET(cfg.API.MetricURI, metricsHandler)
 	r.GET(cfg.API.HealthURI, heartbeatHandler)
 	r.HEAD(cfg.API.HealthURI, heartbeatHandler)
@@ -264,15 +287,15 @@ func handleNotification(
 	for i := range req.Notifications {
 		notification := &req.Notifications[i]
 		switch notification.Platform {
-		case core.PlatFormIos:
+		case core.PlatformIOS:
 			if !cfg.Ios.Enabled {
 				continue
 			}
-		case core.PlatFormAndroid:
+		case core.PlatformAndroid:
 			if !cfg.Android.Enabled {
 				continue
 			}
-		case core.PlatFormHuawei:
+		case core.PlatformHuawei:
 			if !cfg.Huawei.Enabled {
 				continue
 			}
@@ -324,4 +347,12 @@ func handleNotification(
 	status.StatStorage.AddTotalCount(int64(count))
 
 	return count, logs
+}
+
+// handleDeleteScheduledRUSMS deletes to be sent ru sms.
+func handleDeleteScheduledRUSMS(
+	_ context.Context,
+	requestID string,
+) {
+	notify.DescheduleRUSMS(requestID)
 }
